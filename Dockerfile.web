@@ -1,0 +1,35 @@
+FROM node:22-slim AS builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY packages/takt-web/package.json ./packages/takt-web/
+
+RUN npm install --workspace=packages/takt-web
+
+COPY packages/takt-web/ ./packages/takt-web/
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN npm run build --workspace=packages/takt-web
+
+FROM node:22-slim AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3001
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/packages/takt-web/.next/standalone ./
+COPY --from=builder /app/packages/takt-web/.next/static ./packages/takt-web/.next/static
+COPY --from=builder /app/packages/takt-web/public ./packages/takt-web/public 2>/dev/null || true
+
+USER nextjs
+
+EXPOSE 3001
+
+CMD ["node", "packages/takt-web/server.js"]

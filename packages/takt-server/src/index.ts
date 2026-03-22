@@ -47,7 +47,11 @@ async function main() {
   }
 
   app.get('/skill.md', async (request, reply) => {
-    reply.type('text/markdown').send(skillMdContent);
+    const protocol = request.headers['x-forwarded-proto'] || 'http';
+    const host = request.headers['x-forwarded-host'] || request.headers.host || 'localhost';
+    const baseUrl = `${protocol}://${host}`;
+    const resolved = skillMdContent.replace(/\$TAKT_API_URL/g, baseUrl);
+    reply.type('text/markdown').send(resolved);
   });
 
   // MCP endpoint

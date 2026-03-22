@@ -367,7 +367,7 @@ export default function Home() {
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>INSTALL MCP</h2>
             <pre className={styles.codeBlock}>
-              claude mcp add --transport http takt https://takt.dev/mcp
+              claude mcp add --transport http takt $TAKT_API_URL/mcp
             </pre>
             <p className={styles.installNote}>
               Add to AGENTS.md: &quot;Before any task, call estimate_task(). After completion, call report_actual().&quot;
@@ -396,13 +396,13 @@ export default function Home() {
             <pre className={styles.codeBlock}>
 {`# Install
 mkdir -p ~/.moltbot/skills/takt
-curl -s https://takt.dev/skill.md > ~/.moltbot/skills/takt/SKILL.md
+curl -s $TAKT_API_URL/skill.md > ~/.moltbot/skills/takt/SKILL.md
 
 # Before a task
-GET https://takt.dev/estimate?task_type=INTEGRATION&ai_suitability=4
+GET $TAKT_API_URL/estimate?task_type=INTEGRATION&ai_suitability=4
 
 # After a task
-POST https://takt.dev/report
+POST $TAKT_API_URL/report
 {
   "agent_id": "<your-hashed-id>",
   "task_type": "INTEGRATION",

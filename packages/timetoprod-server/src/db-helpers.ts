@@ -14,12 +14,26 @@ export function insertReport(report: TaskReport): { report_id: string; reported_
       stack, model, iterations, parallel_agents, tokens_used,
       actual_wall_clock_min, actual_cost_usd, ttp_estimate_used,
       estimated_minutes, estimated_cost_usd, success,
-      human_review_required, failure_reason, outlier_flagged
+      human_review_required, failure_reason, outlier_flagged,
+      task_goal, task_acceptance, task_repo, task_branch,
+      task_pr_url, task_commit_shas, deliverables_json,
+      files_changed, lines_added, lines_removed,
+      tests_added, tests_passed, tests_failed,
+      planning_minutes, coding_minutes, testing_minutes,
+      debugging_minutes, review_minutes,
+      code_quality_index, code_quality_breakdown
     ) VALUES (
       ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?,
-      ?, ?, ?, ?
+      ?, ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?,
+      ?, ?
     )
   `);
 
@@ -42,7 +56,31 @@ export function insertReport(report: TaskReport): { report_id: string; reported_
     report.success ? 1 : 0,
     report.human_review_required ? 1 : 0,
     report.failure_reason ?? null,
-    0
+    0,
+    // Task definition
+    report.task?.goal ?? null,
+    report.task?.acceptance_criteria ? JSON.stringify(report.task.acceptance_criteria) : null,
+    report.task?.repo ?? null,
+    report.task?.branch ?? null,
+    report.task?.pr_url ?? null,
+    report.task?.commit_shas ? JSON.stringify(report.task.commit_shas) : null,
+    // Deliverables
+    report.deliverables?.artifacts ? JSON.stringify(report.deliverables.artifacts) : null,
+    report.deliverables?.files_changed ?? null,
+    report.deliverables?.lines_added ?? null,
+    report.deliverables?.lines_removed ?? null,
+    report.deliverables?.tests_added ?? null,
+    report.deliverables?.tests_passed ?? null,
+    report.deliverables?.tests_failed ?? null,
+    // Time breakdown
+    report.time_breakdown?.planning_minutes ?? null,
+    report.time_breakdown?.coding_minutes ?? null,
+    report.time_breakdown?.testing_minutes ?? null,
+    report.time_breakdown?.debugging_minutes ?? null,
+    report.time_breakdown?.review_minutes ?? null,
+    // Code quality
+    report.code_quality_index ?? null,
+    report.code_quality_breakdown ? JSON.stringify(report.code_quality_breakdown) : null,
   );
 
   return { report_id, reported_at };
@@ -63,10 +101,16 @@ export function getCellReports(task_type: string, ai_suitability: number): Array
   model: string;
   stack: string | null;
   reported_at: string;
+  files_changed: number | null;
+  lines_added: number | null;
+  tests_added: number | null;
+  code_quality_index: number | null;
 }> {
   const db = getDb();
   return db.prepare(`
-    SELECT actual_wall_clock_min, actual_cost_usd, success, human_review_required, model, stack, reported_at
+    SELECT actual_wall_clock_min, actual_cost_usd, success, human_review_required,
+           model, stack, reported_at, files_changed, lines_added, tests_added,
+           code_quality_index
     FROM reports
     WHERE task_type = ? AND ai_suitability = ? AND outlier_flagged = 0
     ORDER BY reported_at DESC
@@ -171,17 +215,25 @@ export function upvoteFeedPost(post_id: string): void {
   db.prepare('UPDATE feed_posts SET upvotes = upvotes + 1 WHERE post_id = ?').run(post_id);
 }
 
-// Get recent reports for the live feed
+// Get recent reports for the live feed (now includes task context)
 export function getRecentReports(limit: number = 50): any[] {
   const db = getDb();
   return db.prepare(`
     SELECT report_id, task_type, ai_suitability, actual_wall_clock_min, actual_cost_usd,
-           model, stack, success, reported_at
+           model, stack, success, reported_at, task_goal,
+           files_changed, lines_added, lines_removed, tests_added,
+           deliverables_json
     FROM reports
     WHERE outlier_flagged = 0
     ORDER BY reported_at DESC
     LIMIT ?
   `).all(limit);
+}
+
+// Get a single report with full detail
+export function getReportById(report_id: string): any | null {
+  const db = getDb();
+  return db.prepare('SELECT * FROM reports WHERE report_id = ?').get(report_id) ?? null;
 }
 
 // Get all distinct cells that have data

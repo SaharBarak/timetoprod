@@ -209,7 +209,7 @@ export function createMcpServer(): McpServer {
   // Tool 4: report_actual
   server.tool(
     'report_actual',
-    'Report a completed task\'s actual cost and time. Call this after every task completes to contribute to the calibration model.',
+    'Report a completed task\'s actual cost, time, and deliverables. Call this after every task completes. Include task goal and what was produced.',
     {
       task_type: z.enum(TASK_TYPES).describe('Task type'),
       ai_suitability: z.number().int().min(1).max(5).describe('AI suitability 1-5'),
@@ -225,13 +225,78 @@ export function createMcpServer(): McpServer {
       estimated_minutes: z.number().optional().describe('TimeToProd-estimated minutes (if queried)'),
       estimated_cost_usd: z.number().optional().describe('TimeToProd-estimated cost (if queried)'),
       failure_reason: z.enum(["context_overflow", "spec_ambiguity", "tool_error", "timeout", "other"]).optional().describe('Failure reason if not successful'),
+      // Task definition
+      task_goal: z.string().optional().describe('What the agent was asked to accomplish'),
+      task_acceptance_criteria: z.array(z.string()).optional().describe('Acceptance criteria for the task'),
+      task_repo: z.string().optional().describe('Repository name, e.g. "owner/repo"'),
+      task_pr_url: z.string().optional().describe('Pull request URL if one was created'),
+      // Deliverables
+      artifacts: z.array(z.object({
+        type: z.enum(["file", "endpoint", "test", "migration", "config", "documentation", "component", "fix", "refactor"]),
+        path: z.string().optional(),
+        action: z.enum(["created", "modified", "deleted"]),
+        description: z.string().optional(),
+      })).optional().describe('What was produced — files, endpoints, tests, etc.'),
+      files_changed: z.number().int().optional().describe('Total files changed'),
+      lines_added: z.number().int().optional().describe('Lines of code added'),
+      lines_removed: z.number().int().optional().describe('Lines of code removed'),
+      tests_added: z.number().int().optional().describe('Number of tests added'),
+      // Time breakdown
+      planning_minutes: z.number().optional().describe('Minutes spent planning/understanding'),
+      coding_minutes: z.number().optional().describe('Minutes spent writing code'),
+      testing_minutes: z.number().optional().describe('Minutes spent running/fixing tests'),
+      debugging_minutes: z.number().optional().describe('Minutes spent debugging'),
+      // Code quality
+      code_quality_index: z.number().int().min(1).max(100).optional().describe('Composite code quality score 1-100'),
+      code_quality_breakdown: z.object({
+        test_coverage: z.number().int().min(0).max(100).optional(),
+        lint_clean: z.number().int().min(0).max(100).optional(),
+        type_safety: z.number().int().min(0).max(100).optional(),
+        complexity: z.number().int().min(0).max(100).optional(),
+        documentation: z.number().int().min(0).max(100).optional(),
+        security: z.number().int().min(0).max(100).optional(),
+      }).optional().describe('Per-factor quality breakdown'),
     },
     async (params) => {
       const agent_id = 'mcp-agent-' + Date.now().toString(36);
 
       const report = {
         agent_id,
-        ...params,
+        task_type: params.task_type,
+        ai_suitability: params.ai_suitability,
+        actual_wall_clock_minutes: params.actual_wall_clock_minutes,
+        actual_cost_usd: params.actual_cost_usd,
+        iterations: params.iterations,
+        model: params.model,
+        success: params.success,
+        human_review_required: params.human_review_required,
+        stack: params.stack,
+        parallel_agents: params.parallel_agents,
+        ttp_estimate_used: params.ttp_estimate_used,
+        estimated_wall_clock_minutes: params.estimated_minutes,
+        estimated_cost_usd: params.estimated_cost_usd,
+        failure_reason: params.failure_reason,
+        task: params.task_goal ? {
+          goal: params.task_goal,
+          acceptance_criteria: params.task_acceptance_criteria,
+          repo: params.task_repo,
+          pr_url: params.task_pr_url,
+        } : undefined,
+        deliverables: params.artifacts ? {
+          artifacts: params.artifacts,
+          files_changed: params.files_changed,
+          lines_added: params.lines_added,
+          lines_removed: params.lines_removed,
+          tests_added: params.tests_added,
+        } : undefined,
+        time_breakdown: params.planning_minutes != null ? {
+          planning_minutes: params.planning_minutes,
+          coding_minutes: params.coding_minutes,
+          testing_minutes: params.testing_minutes,
+          debugging_minutes: params.debugging_minutes,
+        } : undefined,
+        code_quality_index: params.code_quality_index,
+        code_quality_breakdown: params.code_quality_breakdown,
       };
 
       const allowed = checkAndUpdateRateLimit(agent_id);

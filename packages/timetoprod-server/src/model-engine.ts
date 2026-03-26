@@ -65,6 +65,12 @@ export function computeCellStats(taskType: string, aiSuitability: number): CellS
   const medianMinutes = percentile(minutes, 50);
   const accelerationFactor = medianMinutes > 0 ? humanBaseline / medianMinutes : 0;
 
+  // Aggregate deliverable stats from reports that include them
+  const filesChanged = reports.map(r => r.files_changed).filter((v): v is number => v != null).sort((a, b) => a - b);
+  const linesAdded = reports.map(r => r.lines_added).filter((v): v is number => v != null).sort((a, b) => a - b);
+  const testsAdded = reports.map(r => r.tests_added).filter((v): v is number => v != null).sort((a, b) => a - b);
+  const qualityScores = reports.map(r => r.code_quality_index).filter((v): v is number => v != null).sort((a, b) => a - b);
+
   return {
     p10_minutes: Math.round(percentile(minutes, 10) * 100) / 100,
     p25_minutes: Math.round(percentile(minutes, 25) * 100) / 100,
@@ -81,6 +87,10 @@ export function computeCellStats(taskType: string, aiSuitability: number): CellS
     top_models: topN(models, 3),
     top_stacks: topN(stacks, 3),
     last_report_at: reports[0]?.reported_at || new Date().toISOString(),
+    median_files_changed: filesChanged.length > 0 ? Math.round(percentile(filesChanged, 50)) : null,
+    median_lines_added: linesAdded.length > 0 ? Math.round(percentile(linesAdded, 50)) : null,
+    median_tests_added: testsAdded.length > 0 ? Math.round(percentile(testsAdded, 50)) : null,
+    median_code_quality: qualityScores.length > 0 ? Math.round(percentile(qualityScores, 50)) : null,
   };
 }
 

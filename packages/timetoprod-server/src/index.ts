@@ -8,6 +8,7 @@ import { startModelRefreshLoop, getCurrentModel } from './model-engine.js';
 import { getDb } from './db.js';
 import { createMcpServer } from './mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { startEvangelist, getEvangelistStatus } from './evangelist/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -78,6 +79,11 @@ async function main() {
     reply.status(405).send({ error: 'Method not allowed.' });
   });
 
+  // Evangelist status endpoint
+  app.get('/evangelist/status', async (request, reply) => {
+    return getEvangelistStatus();
+  });
+
   // Start server
   const port = Number(process.env.PORT) || 3000;
   const host = process.env.HOST || '0.0.0.0';
@@ -87,6 +93,9 @@ async function main() {
     console.log(`TimeToProd server running on http://${host}:${port}`);
     console.log(`MCP endpoint: http://${host}:${port}/mcp`);
     console.log(`SKILL.md: http://${host}:${port}/skill.md`);
+
+    // Start evangelist agent (disabled by default, set EVANGELIST_ENABLED=true)
+    startEvangelist();
   } catch (err) {
     app.log.error(err);
     process.exit(1);

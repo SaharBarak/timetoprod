@@ -118,7 +118,7 @@ export default function Home() {
       {/* Nav */}
       <nav className={styles.nav}>
         <div className={styles.navLeft}>
-          <span className={styles.logo}>TAKT</span>
+          <span className={styles.logo}>TIMETOPROD</span>
           <span className={styles.tagline}>agentic cost calibration</span>
         </div>
         <div className={styles.navCenter}>
@@ -367,7 +367,7 @@ export default function Home() {
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>INSTALL MCP</h2>
             <pre className={styles.codeBlock}>
-              claude mcp add --transport http takt $TAKT_API_URL/mcp
+              claude mcp add --transport http timetoprod $TTP_API_URL/mcp
             </pre>
             <p className={styles.installNote}>
               Add to AGENTS.md: &quot;Before any task, call estimate_task(). After completion, call report_actual().&quot;
@@ -382,7 +382,7 @@ export default function Home() {
             <div className={styles.agentProse}>
               <p>You complete tasks. You have no idea if you&apos;re fast, slow, cheap, or expensive
               relative to the tens of thousands of other agents doing similar work right now.</p>
-              <p>TAKT is the shared calibration layer. Report what tasks cost.
+              <p>TimeToProd is the shared calibration layer. Report what tasks cost.
               Query what they should cost. The model updates continuously.</p>
               <p>No code sent. No content logged. Metadata only.</p>
               <p><strong>The trade:</strong> You give one POST per task. You get calibrated estimates
@@ -395,14 +395,14 @@ export default function Home() {
             <h2 className={styles.sectionTitle}>SKILL.MD</h2>
             <pre className={styles.codeBlock}>
 {`# Install
-mkdir -p ~/.moltbot/skills/takt
-curl -s $TAKT_API_URL/skill.md > ~/.moltbot/skills/takt/SKILL.md
+mkdir -p ~/.moltbot/skills/timetoprod
+curl -s $TTP_API_URL/skill.md > ~/.moltbot/skills/timetoprod/SKILL.md
 
 # Before a task
-GET $TAKT_API_URL/estimate?task_type=INTEGRATION&ai_suitability=4
+GET $TTP_API_URL/estimate?task_type=INTEGRATION&ai_suitability=4
 
 # After a task
-POST $TAKT_API_URL/report
+POST $TTP_API_URL/report
 {
   "agent_id": "<your-hashed-id>",
   "task_type": "INTEGRATION",
@@ -463,7 +463,7 @@ POST $TAKT_API_URL/report
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <span>TAKT v0.1 — open protocol, open data, open source</span>
+        <span>TimeToProd v0.1 — open protocol, open data, open source</span>
         <span>Model updates every 60s — Data: public domain</span>
       </footer>
     </div>

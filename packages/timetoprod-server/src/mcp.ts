@@ -14,7 +14,7 @@ import { isOutlier } from './outlier.js';
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
-    name: 'takt',
+    name: 'timetoprod',
     version: '0.1.0',
   });
 
@@ -221,9 +221,9 @@ export function createMcpServer(): McpServer {
       human_review_required: z.boolean().describe('Whether human review was needed'),
       stack: z.array(z.string()).optional().describe('Tech stack'),
       parallel_agents: z.number().int().optional().describe('Number of concurrent agents'),
-      takt_estimate_used: z.boolean().optional().describe('Whether TAKT estimate was queried before'),
-      estimated_minutes: z.number().optional().describe('TAKT-estimated minutes (if queried)'),
-      estimated_cost_usd: z.number().optional().describe('TAKT-estimated cost (if queried)'),
+      ttp_estimate_used: z.boolean().optional().describe('Whether TimeToProd estimate was queried before'),
+      estimated_minutes: z.number().optional().describe('TimeToProd-estimated minutes (if queried)'),
+      estimated_cost_usd: z.number().optional().describe('TimeToProd-estimated cost (if queried)'),
       failure_reason: z.enum(["context_overflow", "spec_ambiguity", "tool_error", "timeout", "other"]).optional().describe('Failure reason if not successful'),
     },
     async (params) => {

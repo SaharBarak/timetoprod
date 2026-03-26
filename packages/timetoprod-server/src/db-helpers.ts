@@ -12,7 +12,7 @@ export function insertReport(report: TaskReport): { report_id: string; reported_
     INSERT INTO reports (
       report_id, agent_id, reported_at, task_type, ai_suitability,
       stack, model, iterations, parallel_agents, tokens_used,
-      actual_wall_clock_min, actual_cost_usd, takt_estimate_used,
+      actual_wall_clock_min, actual_cost_usd, ttp_estimate_used,
       estimated_minutes, estimated_cost_usd, success,
       human_review_required, failure_reason, outlier_flagged
     ) VALUES (
@@ -36,7 +36,7 @@ export function insertReport(report: TaskReport): { report_id: string; reported_
     report.tokens_used ?? null,
     report.actual_wall_clock_minutes,
     report.actual_cost_usd,
-    report.takt_estimate_used ? 1 : 0,
+    report.ttp_estimate_used ? 1 : 0,
     report.estimated_wall_clock_minutes ?? null,
     report.estimated_cost_usd ?? null,
     report.success ? 1 : 0,

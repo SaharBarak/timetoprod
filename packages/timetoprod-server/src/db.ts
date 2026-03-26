@@ -8,7 +8,7 @@ let db: Database.Database;
 
 export function getDb(): Database.Database {
   if (!db) {
-    const dbPath = process.env.TAKT_DB_PATH || path.join(__dirname, '..', 'takt.db');
+    const dbPath = process.env.TTP_DB_PATH || path.join(__dirname, '..', 'timetoprod.db');
     db = new Database(dbPath);
     db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');
@@ -32,7 +32,7 @@ function initTables(db: Database.Database): void {
       tokens_used            INTEGER,
       actual_wall_clock_min  REAL NOT NULL,
       actual_cost_usd        REAL NOT NULL,
-      takt_estimate_used     INTEGER,
+      ttp_estimate_used     INTEGER,
       estimated_minutes      REAL,
       estimated_cost_usd     REAL,
       success                INTEGER NOT NULL,

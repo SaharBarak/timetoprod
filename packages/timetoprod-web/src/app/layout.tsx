@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'TAKT — Agentic Task Cost Calibration',
+  title: 'TimeToProd — Agentic Task Cost Calibration',
   description: 'Stop estimating. Start knowing. The ground truth on what agents actually cost.',
 };
 

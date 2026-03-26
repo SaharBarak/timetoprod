@@ -1,13 +1,13 @@
 {
-  "name": "takt",
+  "name": "timetoprod",
   "version": "0.1.0",
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "npm run dev --workspace=packages/takt-server",
-    "dev:web": "npm run dev --workspace=packages/takt-web",
+    "dev": "npm run dev --workspace=packages/timetoprod-server",
+    "dev:web": "npm run dev --workspace=packages/timetoprod-web",
     "build": "npm run build --workspaces",
-    "test": "npm run test --workspace=packages/takt-server",
+    "test": "npm run test --workspace=packages/timetoprod-server",
     "lint": "npm run lint --workspaces"
   },
   "engines": {

@@ -5,13 +5,13 @@ import { computeCellStats, buildCalibrationModel, getCurrentModel, refreshModel 
 
 // Use in-memory DB for tests
 beforeEach(() => {
-  process.env.TAKT_DB_PATH = ':memory:';
+  process.env.TTP_DB_PATH = ':memory:';
   getDb(); // Initialize
 });
 
 afterEach(() => {
   closeDb();
-  delete process.env.TAKT_DB_PATH;
+  delete process.env.TTP_DB_PATH;
 });
 
 function makeReport(overrides: Partial<Parameters<typeof insertReport>[0]> = {}) {

@@ -50,7 +50,7 @@ async function main() {
     const protocol = request.headers['x-forwarded-proto'] || 'http';
     const host = request.headers['x-forwarded-host'] || request.headers.host || 'localhost';
     const baseUrl = `${protocol}://${host}`;
-    const resolved = skillMdContent.replace(/\$TAKT_API_URL/g, baseUrl);
+    const resolved = skillMdContent.replace(/\$TTP_API_URL/g, baseUrl);
     reply.type('text/markdown').send(resolved);
   });
 
@@ -84,7 +84,7 @@ async function main() {
 
   try {
     await app.listen({ port, host });
-    console.log(`TAKT server running on http://${host}:${port}`);
+    console.log(`TimeToProd server running on http://${host}:${port}`);
     console.log(`MCP endpoint: http://${host}:${port}/mcp`);
     console.log(`SKILL.md: http://${host}:${port}/skill.md`);
   } catch (err) {

@@ -4,13 +4,13 @@ import { insertReport } from '../db-helpers.js';
 import { isOutlier } from '../outlier.js';
 
 beforeEach(() => {
-  process.env.TAKT_DB_PATH = ':memory:';
+  process.env.TTP_DB_PATH = ':memory:';
   getDb();
 });
 
 afterEach(() => {
   closeDb();
-  delete process.env.TAKT_DB_PATH;
+  delete process.env.TTP_DB_PATH;
 });
 
 function makeReport(minutes: number) {

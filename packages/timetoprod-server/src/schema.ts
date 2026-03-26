@@ -33,7 +33,7 @@ export const TaskReportSchema = z.object({
   tokens_used: z.number().int().min(0).optional(),
   actual_wall_clock_minutes: z.number().min(0.01).max(10000),
   actual_cost_usd: z.number().min(0).max(100000),
-  takt_estimate_used: z.boolean().optional(),
+  ttp_estimate_used: z.boolean().optional(),
   estimated_wall_clock_minutes: z.number().min(0).optional(),
   estimated_cost_usd: z.number().min(0).optional(),
   success: z.boolean(),

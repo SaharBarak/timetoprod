@@ -7,22 +7,22 @@ RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt
 
 # Copy root workspace files
 COPY package.json package-lock.json ./
-COPY packages/takt-server/package.json ./packages/takt-server/
+COPY packages/timetoprod-server/package.json ./packages/timetoprod-server/
 
 # Install dependencies
-RUN npm install --workspace=packages/takt-server
+RUN npm install --workspace=packages/timetoprod-server
 
 # Copy server source
-COPY packages/takt-server/ ./packages/takt-server/
+COPY packages/timetoprod-server/ ./packages/timetoprod-server/
 COPY tsconfig.base.json ./
 
 # Create data directory for SQLite
 RUN mkdir -p /data
 
-ENV TAKT_DB_PATH=/data/takt.db
+ENV TTP_DB_PATH=/data/timetoprod.db
 ENV NODE_ENV=production
 ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["npx", "tsx", "packages/takt-server/src/index.ts"]
+CMD ["npx", "tsx", "packages/timetoprod-server/src/index.ts"]

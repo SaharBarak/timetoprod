@@ -25,7 +25,7 @@ describe('TaskReportSchema', () => {
       stack: ['typescript', 'node', 'postgres'],
       parallel_agents: 3,
       tokens_used: 50000,
-      takt_estimate_used: true,
+      ttp_estimate_used: true,
       estimated_wall_clock_minutes: 42,
       estimated_cost_usd: 7.10,
       failure_reason: 'timeout',

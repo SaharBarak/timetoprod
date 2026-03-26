@@ -56,12 +56,28 @@ export function runMigrations(db: Database.Database): { applied: string[]; curre
   for (const migration of migrations) {
     if (applied.has(migration.version)) continue;
 
-    db.transaction(() => {
-      db.exec(migration.sql);
-      db.prepare(
-        'INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)'
-      ).run(migration.version, migration.name, new Date().toISOString());
-    })();
+    // Run each statement individually to handle "duplicate column" gracefully
+    // (happens when initTables already created the full schema on a fresh DB)
+    const statements = migration.sql
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0 && !s.startsWith('--'));
+
+    for (const stmt of statements) {
+      try {
+        db.exec(stmt);
+      } catch (err: any) {
+        // Ignore "duplicate column name" — means initTables already has it
+        if (err.code === 'SQLITE_ERROR' && err.message?.includes('duplicate column')) {
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    db.prepare(
+      'INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)'
+    ).run(migration.version, migration.name, new Date().toISOString());
 
     newlyApplied.push(`V${String(migration.version).padStart(3, '0')}: ${migration.name}`);
   }
